@@ -1,0 +1,35 @@
+*.iml
+.gradle
+/local.properties
+/.idea
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+google-services.json
+secrets.properties
+
+# Build outputs
+app/build/
+build/
+
+# Large binary files
+*.apk
+*.aab
+*.pkg
+*.dmg
+
+# IDE
+*.iws
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Images (large assets not needed in repo)
+BANNER*.png
+*.pdf
+H/
