@@ -33,6 +33,9 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        
+        // Inject keys into Manifest (specifically Sentry)
+        manifestPlaceholders["sentryDsn"] = secretsProperties.getProperty("SENTRY_DSN", "")
 
         // Inject API keys as BuildConfig fields
         buildConfigField("String", "GEMINI_API_KEY",
