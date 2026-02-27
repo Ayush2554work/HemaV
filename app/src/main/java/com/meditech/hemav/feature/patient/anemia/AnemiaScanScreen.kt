@@ -7,7 +7,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.util.Log
-import android.annotation.SuppressLint
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
@@ -49,7 +48,6 @@ import java.util.concurrent.Executor
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun AnemiaScanScreen(
     isPro: Boolean = false,
@@ -141,7 +139,8 @@ fun AnemiaScanScreen(
         )
     }
 
-    Scaffold { padding ->
+    Scaffold { paddingValues ->
+        Box(modifier = Modifier.padding(paddingValues)) {
         when (val state = uiState) {
             is ScanUiState.Intro -> {
                 AnemiaScanIntro(
@@ -237,6 +236,7 @@ fun AnemiaScanScreen(
                 }
             }
         }
+        } // end Box
     }
 }
 
