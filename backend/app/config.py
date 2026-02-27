@@ -23,6 +23,13 @@ class Settings(BaseSettings):
     # CORS
     cors_origins: str = "*"
 
+    # Sentry
+    sentry_dsn: str = ""
+
+    # Razorpay
+    razorpay_key_id: str = ""
+    razorpay_key_secret: str = ""
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
