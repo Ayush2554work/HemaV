@@ -23,6 +23,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -525,7 +527,7 @@ fun AnemiaScanIntro(
                 title = { Text("AI Anemia Screening") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                     }
                 }
             )
@@ -634,7 +636,7 @@ fun AnemiaScanIntro(
                             Text("Skip the AI Queue", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = AccentGold)
                             Text("Pro members get instant priority scans.", style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha=0.9f))
                         }
-                        Icon(Icons.Default.ArrowForwardIos, contentDescription = null, tint = AccentGold, modifier = Modifier.size(14.dp))
+                        Icon(Icons.AutoMirrored.Filled.ArrowForwardIos, contentDescription = null, tint = AccentGold, modifier = Modifier.size(14.dp))
                     }
                 }
             }
