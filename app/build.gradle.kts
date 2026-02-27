@@ -45,6 +45,8 @@ android {
             "\"${secretsProperties.getProperty("SENTRY_DSN", "")}\"")
         buildConfigField("String", "BACKEND_BASE_URL",
             "\"${secretsProperties.getProperty("BACKEND_BASE_URL", "http://64.227.150.118:8000")}\"")
+        buildConfigField("String", "RAZORPAY_KEY_ID",
+            "\"${secretsProperties.getProperty("RAZORPAY_KEY_ID", "")}\"")
     }
 
     buildTypes {
