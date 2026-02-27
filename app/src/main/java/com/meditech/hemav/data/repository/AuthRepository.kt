@@ -1,14 +1,22 @@
 package com.meditech.hemav.data.repository
 
+import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.meditech.hemav.data.model.User
 import com.meditech.hemav.data.model.UserRole
+import com.meditech.hemav.data.remote.HemavApiClient
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 /**
- * Repository for Firebase Authentication operations
+ * Repository for authentication.
+ *
+ * Uses Firebase Auth as the primary identity provider.
+ * After successful login/register, syncs with the HemaV backend
+ * to get a JWT token for accessing backend-only APIs (scans, appointments, etc.)
  */
 class AuthRepository {
     private val auth = FirebaseAuth.getInstance()
@@ -17,10 +25,29 @@ class AuthRepository {
     val currentUser: FirebaseUser? get() = auth.currentUser
     val isLoggedIn: Boolean get() = currentUser != null
 
-    suspend fun login(email: String, password: String): Result<FirebaseUser> {
+    suspend fun login(
+        email: String,
+        password: String,
+        context: Context? = null,
+    ): Result<FirebaseUser> {
         return try {
+            // 1. Firebase login
             val result = auth.signInWithEmailAndPassword(email, password).await()
-            Result.success(result.user!!)
+            val firebaseUser = result.user!!
+
+            // 2. Sync with backend (best-effort — don't fail login if backend is down)
+            try {
+                withContext(Dispatchers.IO) {
+                    val resp = HemavApiClient.login(email, password)
+                    val token = resp.getString("access_token")
+                    if (context != null) HemavApiClient.saveToken(context, token)
+                    else HemavApiClient.setToken(token)
+                }
+            } catch (e: Exception) {
+                android.util.Log.w("AuthRepository", "Backend sync failed (non-critical): ${e.message}")
+            }
+
+            Result.success(firebaseUser)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -31,13 +58,15 @@ class AuthRepository {
         email: String,
         password: String,
         phone: String,
-        role: UserRole
+        role: UserRole,
+        context: Context? = null,
     ): Result<FirebaseUser> {
         return try {
+            // 1. Firebase register
             val result = auth.createUserWithEmailAndPassword(email, password).await()
             val firebaseUser = result.user!!
 
-            // Create user document in Firestore
+            // 2. Store user in Firestore
             val user = User(
                 uid = firebaseUser.uid,
                 name = name,
@@ -49,6 +78,24 @@ class AuthRepository {
                 .document(firebaseUser.uid)
                 .set(user)
                 .await()
+
+            // 3. Register on backend (best-effort)
+            try {
+                withContext(Dispatchers.IO) {
+                    val resp = HemavApiClient.register(
+                        name = name,
+                        email = email,
+                        password = password,
+                        phone = phone,
+                        role = role.name,
+                    )
+                    val token = resp.getString("access_token")
+                    if (context != null) HemavApiClient.saveToken(context, token)
+                    else HemavApiClient.setToken(token)
+                }
+            } catch (e: Exception) {
+                android.util.Log.w("AuthRepository", "Backend register failed (non-critical): ${e.message}")
+            }
 
             Result.success(firebaseUser)
         } catch (e: Exception) {
@@ -74,8 +121,10 @@ class AuthRepository {
         }
     }
 
-    fun logout() {
+    fun logout(context: Context? = null) {
         auth.signOut()
+        if (context != null) HemavApiClient.clearToken(context)
+        else HemavApiClient.clearToken()
     }
 
     suspend fun resetPassword(email: String): Result<Unit> {
@@ -91,5 +140,12 @@ class AuthRepository {
         try {
             firestore.collection("doctors").document(uid).set(profile).await()
         } catch (_: Exception) {}
+    }
+
+    /**
+     * Call on app startup to restore JWT token from storage.
+     */
+    fun restoreSession(context: Context) {
+        HemavApiClient.loadToken(context)
     }
 }

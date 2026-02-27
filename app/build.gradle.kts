@@ -43,6 +43,8 @@ android {
             "\"${secretsProperties.getProperty("HUGGINGFACE_API_KEY", "")}\"")
         buildConfigField("String", "SENTRY_DSN",
             "\"${secretsProperties.getProperty("SENTRY_DSN", "")}\"")
+        buildConfigField("String", "BACKEND_BASE_URL",
+            "\"${secretsProperties.getProperty("BACKEND_BASE_URL", "http://64.227.150.118:8000")}\"")
     }
 
     buildTypes {

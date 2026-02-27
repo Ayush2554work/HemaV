@@ -189,6 +189,21 @@ class ScanRepository {
         // Step 3: Update user scan count (best-effort)
         try { updateUserScanStats(userId) } catch (_: Exception) {}
 
+        // Step 4: Sync to backend API (best-effort — Firestore is source of truth for now)
+        try {
+            withContext(kotlinx.coroutines.Dispatchers.IO) {
+                com.meditech.hemav.data.remote.HemavApiClient.saveScanResult(
+                    riskLevel = stage.name,
+                    confidence = confidence,
+                    hemoglobinEstimate = hemoglobinEstimate.toString(),
+                    details = explanation,
+                    recommendations = recommendations,
+                )
+            }
+        } catch (e: Exception) {
+            android.util.Log.w("ScanRepository", "Backend sync failed (non-critical): ${e.message}")
+        }
+
         return Result.success(anemiaResult)
     }
 

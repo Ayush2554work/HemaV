@@ -5,12 +5,15 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 import com.google.firebase.FirebaseApp
+import com.meditech.hemav.data.remote.HemavApiClient
+import com.meditech.hemav.data.repository.AuthRepository
 import io.sentry.android.core.SentryAndroid
 
 class HemaVApp : Application() {
     override fun onCreate() {
         super.onCreate()
         FirebaseApp.initializeApp(this)
+        AuthRepository().restoreSession(this)  // Restore backend JWT token
         initSentry()
         createNotificationChannels()
     }
