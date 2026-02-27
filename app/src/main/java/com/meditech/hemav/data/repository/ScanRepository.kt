@@ -10,7 +10,9 @@ import com.meditech.hemav.data.model.AnemiaResult
 import com.meditech.hemav.data.model.AnemiaStage
 import com.meditech.hemav.data.model.PatientDetails
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.util.UUID
 
@@ -191,7 +193,7 @@ class ScanRepository {
 
         // Step 4: Sync to backend API (best-effort — Firestore is source of truth for now)
         try {
-            withContext(kotlinx.coroutines.Dispatchers.IO) {
+            withContext(Dispatchers.IO) {
                 com.meditech.hemav.data.remote.HemavApiClient.saveScanResult(
                     riskLevel = stage.name,
                     confidence = confidence,
